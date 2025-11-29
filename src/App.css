@@ -1,0 +1,46 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Existing mobile styles */
+@media (max-width: 768px) {
+  body {
+    overflow-x: hidden;
+    width: 100%;
+    position: relative;
+  }
+
+  .table-container {
+    width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .fixed-table {
+    table-layout: fixed;
+    width: 100%;
+  }
+
+  .fixed-table th,
+  .fixed-table td {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .button-group {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+
+  .button-group button {
+    flex: 1;
+    min-width: 120px;
+  }
+
+  .mobile-input {
+    width: 100%;
+    box-sizing: border-box;
+  }
+}
