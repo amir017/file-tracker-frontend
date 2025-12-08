@@ -36,10 +36,10 @@ function App() {
       <Routes>
         <Route path="/login" element={<Login onLogin={handleLogin} />} />
         <Route
-          path="/DiarySearchScreenQR"
+          path="/Login"
           element={
             <ProtectedRoute>
-              <DiarySearchScreen onLogout={handleLogout} />
+              <Login onLogout={handleLogout} />
             </ProtectedRoute>
           }
         />
@@ -48,6 +48,14 @@ function App() {
           element={
             <ProtectedRoute>
               <UserDashboard onLogout={handleLogout} />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/DiarySearchScreenQR"
+          element={
+            <ProtectedRoute>
+              <DiarySearchScreen onLogout={handleLogout} />
             </ProtectedRoute>
           }
         />

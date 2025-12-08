@@ -1,148 +1,137 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { jwtDecode } from "jwt-decode";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faBars } from "@fortawesome/free-solid-svg-icons";
-import Api from "../API/Api";
+import api from "../API/Api";
+import logo from "../assets/logo.png";
 
-function MenuItem({ menu, onNavigate }) {
-  const [isOpen, setIsOpen] = useState(false);
+function Login({ onLogin }) {
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
+  const navigate = useNavigate();
 
-  const handleClick = () => {
-    if (menu.children?.length > 0) {
-      setIsOpen(!isOpen);
-    } else if (menu.Url) {
-      onNavigate(menu.Url);
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setError("");
+    try {
+      const data = await api.login(username, password);
+      localStorage.setItem("token", data.token || "");
+      localStorage.setItem("user", JSON.stringify(data.user || {}));
+      onLogin?.();
+      navigate("/DiarySearchScreenQR");
+    } catch (err) {
+      console.error("Login error:", err);
+      setError(err.response?.data?.error || "Login failed. Please try again.");
     }
   };
 
   return (
-    <div className="mb-1">
+    <div
+      className="
+        min-h-[100dvh] w-full
+        bg-white
+        flex justify-center items-center
+        p-0 m-0 overflow-hidden
+        md:items-center
+      "
+    >
+      {/* Card */}
       <div
-        className="flex items-center px-3 py-2 text-gray-800 hover:bg-blue-100 cursor-pointer rounded-md transition-all duration-200"
-        onClick={handleClick}
+        className="
+          w-full max-w-md
+          m-0
+          md:m-0
+          rounded-3xl border border-indigo-200
+          bg-gradient-to-br from-indigo-50 via-purple-50 to-pink-50
+          shadow-[0_30px_60px_-20px_rgba(0,0,0,0.25)]
+          backdrop-blur
+          flex flex-col
+          justify-center
+          px-4 sm:px-8 py-8 md:py-10
+          h-[100dvh] md:h-auto
+        "
       >
-        {menu.Icon && <i className={`${menu.Icon} mr-2 text-blue-500`}></i>}
-        <span className="flex-grow text-sm font-medium">{menu.MenuName}</span>
-        {menu.children?.length > 0 && (
-          <i
-            className={`fas fa-chevron-${isOpen ? "up" : "down"} text-gray-500`}
-          ></i>
-        )}
-      </div>
-      {isOpen && menu.children && (
-        <div className="ml-4 pl-2 border-l border-blue-200">
-          {menu.children.map((child) => (
-            <MenuItem key={child.MenuID} menu={child} onNavigate={onNavigate} />
-          ))}
-        </div>
-      )}
-    </div>
-  );
-}
+        <div className="text-center">
+          {/* Logo */}
+          <img
+            src={logo}
+            alt="Lahore High Court Logo"
+            className="w-24 mx-auto mb-4 rounded-full shadow-lg"
+          />
 
-function Layout({ children, onLogout }) {
-  const [menus, setMenus] = useState([]);
-  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
-  const [user, setUser] = useState({});
-  const navigate = useNavigate();
-
-  useEffect(() => {
-    const fetchMenus = async () => {
-      try {
-        const token = localStorage.getItem("token");
-        if (!token) return navigate("/login");
-
-        jwtDecode(token); // Validate token
-        const stored = JSON.parse(localStorage.getItem("user") || "{}");
-        setUser(stored.user || {});
-
-        const menusData = await Api.getMenus();
-        setMenus(menusData);
-      } catch (err) {
-        console.error("Error fetching menus:", err);
-        navigate("/login");
-      }
-    };
-
-    fetchMenus();
-  }, [navigate]);
-
-  const handleMenuNavigate = (url) => {
-    setIsSidebarOpen(false);
-    navigate(url);
-  };
-
-  const handleLogout = () => {
-    localStorage.removeItem("token");
-    onLogout();
-    navigate("/login");
-  };
-
-  const toggleSidebar = () => setIsSidebarOpen((prev) => !prev);
-
-  return (
-    <div className="min-h-screen flex bg-gray-100 relative">
-      {/* Sidebar */}
-      <aside
-        className={`w-64 bg-white shadow-md fixed md:static inset-y-0 left-0 z-40 overflow-y-auto px-4 py-6 transform transition-transform duration-300 ease-in-out ${
-          isSidebarOpen ? "translate-x-0" : "-translate-x-full"
-        } md:translate-x-0`}
-      >
-        <h2 className="text-xl font-bold text-blue-700 mb-6">📚 Menu</h2>
-        <nav>
-          {menus.length ? (
-            menus.map((menu) => (
-              <MenuItem
-                key={menu.MenuID}
-                menu={menu}
-                onNavigate={handleMenuNavigate}
-              />
-            ))
-          ) : (
-            <p className="text-gray-500 text-sm">No menus available.</p>
-          )}
-        </nav>
-      </aside>
-
-      {/* Main Content */}
-      <div className="flex flex-col flex-1 min-h-screen transition-all duration-300">
-        {/* Header */}
-        <header className="bg-white border-b shadow-sm px-4 md:px-6 py-3 flex justify-between items-center sticky top-0 z-30">
-          <h1 className="text-lg md:text-xl font-semibold text-blue-800">
-            <span className="ml-10 block md:hidden">FTS</span>
-            <span className="hidden md:inline">📁 File Tracking System</span>
+          {/* Title */}
+          <h1 className="text-3xl font-bold mb-1 text-indigo-700">
+            Lahore High Court
           </h1>
-          <div className="flex items-center gap-4">
-            <span className="text-gray-700 text-sm sm:text-base">
-              👋 Welcome, <strong>{user.fullName}</strong>
-              {user.designation && ` — ${user.designation}`}
-              {user.placeOfPosting && ` @ ${user.placeOfPosting}`}
-            </span>
+
+          {/* Subtitle */}
+          <p className="text-indigo-500 mb-8 text-sm font-semibold">
+            File Tracking System
+          </p>
+
+          {/* Error */}
+          {error && <p className="text-red-500 mb-4 font-medium">{error}</p>}
+
+          {/* Form */}
+          <form onSubmit={handleSubmit} className="space-y-5 text-left">
+            <div>
+              <label
+                htmlFor="username"
+                className="block text-indigo-700 mb-1 font-medium"
+              >
+                Username
+              </label>
+              <input
+                id="username"
+                type="text"
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
+                required
+                className="
+                  w-full p-3 rounded-lg bg-white
+                  border-2 border-indigo-300
+                  focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200
+                  outline-none transition
+                "
+              />
+            </div>
+
+            <div>
+              <label
+                htmlFor="password"
+                className="block text-indigo-700 mb-1 font-medium"
+              >
+                Password
+              </label>
+              <input
+                id="password"
+                type="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required
+                className="
+                  w-full p-3 rounded-lg bg-white
+                  border-2 border-indigo-300
+                  focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200
+                  outline-none transition
+                "
+              />
+            </div>
+
             <button
-              onClick={handleLogout}
-              className="bg-red-500 hover:bg-red-600 text-white px-3 py-1.5 rounded text-sm shadow-sm"
+              type="submit"
+              className="
+                w-full p-3 rounded-lg font-semibold text-white
+                bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500
+                shadow-md transition-transform duration-200 active:scale-[0.99]
+              "
             >
-              Logout
+              Login
             </button>
-          </div>
-        </header>
-
-        {/* Page Content */}
-        <main className="flex-grow p-4 md:p-6 bg-gray-50 overflow-auto">
-          {children}
-        </main>
+          </form>
+        </div>
       </div>
-
-      {/* Mobile Hamburger Button */}
-      <button
-        onClick={toggleSidebar}
-        className="md:hidden fixed top-4 left-4 z-50 bg-white p-2 rounded-md shadow-md text-blue-600"
-      >
-        <FontAwesomeIcon icon={faBars} />
-      </button>
     </div>
   );
 }
 
-export default Layout;
+export default Login;
