@@ -37,8 +37,9 @@ function DiarySearchScreenQR({ onLogout, username = "Unknown User" }) {
   // 🔊 Play beep on scan success (keeps as baseline)
   const playBeep = () => {
     try {
-      const audioContext = new (window.AudioContext ||
-        window.webkitAudioContext)();
+      const audioContext = new (
+        window.AudioContext || window.webkitAudioContext
+      )();
       const oscillator = audioContext.createOscillator();
       const gainNode = audioContext.createGain();
 
@@ -98,7 +99,7 @@ function DiarySearchScreenQR({ onLogout, username = "Unknown User" }) {
       console.error("Error stopping scanner:", err);
       // keep using setError same as baseline
       setError(
-        "Failed to stop scanner: " + (err?.message || JSON.stringify(err))
+        "Failed to stop scanner: " + (err?.message || JSON.stringify(err)),
       );
     }
   };
@@ -138,7 +139,7 @@ function DiarySearchScreenQR({ onLogout, username = "Unknown User" }) {
         console.log("Available cameras:", cameras);
       } catch (err) {
         setError(
-          "Failed to access cameras: " + (err.message || JSON.stringify(err))
+          "Failed to access cameras: " + (err.message || JSON.stringify(err)),
         );
         console.error("Camera access error:", err);
         isTransitioningRef.current = false;
@@ -157,7 +158,7 @@ function DiarySearchScreenQR({ onLogout, username = "Unknown User" }) {
           (cam) =>
             cam.facingMode === "environment" ||
             cam.label.toLowerCase().includes("back") ||
-            cam.label.toLowerCase().includes("rear")
+            cam.label.toLowerCase().includes("rear"),
         ) || cameras[0];
 
       console.log("Selected camera:", rearCamera.label || rearCamera.id);
@@ -180,19 +181,15 @@ function DiarySearchScreenQR({ onLogout, username = "Unknown User" }) {
 
             console.log("Decoded QR:", decodedText);
             const diaryMatch = decodedText.match(
-              /Diary Number\s*:\s*(\d+)\s*\/\s*(\d+)/i
+              /Diary Number\s*:\s*([A-Za-z0-9\/\-]+)/i,
             );
+
             if (!diaryMatch) {
               setError("Invalid QR code format. Please re-scan.");
               return;
             }
 
-            const diary = `${diaryMatch[1]}/${diaryMatch[2]}`;
-
-            // use ref to get latest state inside callback
-            const alreadyScanned = scannedDiariesRef.current.find(
-              (d) => d.Diary_Number === diary
-            );
+            const diary = diaryMatch[1];
 
             if (alreadyScanned) {
               // show duplicate message for a short time
@@ -228,7 +225,7 @@ function DiarySearchScreenQR({ onLogout, username = "Unknown User" }) {
               console.error("Failed to stop scanner after scan:", err);
               setError(
                 "Failed to stop scanner: " +
-                  (err.message || JSON.stringify(err))
+                  (err.message || JSON.stringify(err)),
               );
             }
 
@@ -239,7 +236,7 @@ function DiarySearchScreenQR({ onLogout, username = "Unknown User" }) {
                 clearTimeout(restartTimeoutRef.current);
               restartTimeoutRef.current = setTimeout(() => {
                 startScanner().catch((err) =>
-                  console.error("Restart scanner error:", err)
+                  console.error("Restart scanner error:", err),
                 );
                 restartTimeoutRef.current = null;
               }, 1500);
@@ -249,7 +246,7 @@ function DiarySearchScreenQR({ onLogout, username = "Unknown User" }) {
           (errorMessage) => {
             // scan errors (non-fatal)
             console.warn("Scan error:", errorMessage);
-          }
+          },
         );
         console.log("Scanner started successfully");
         // request wake lock after start
@@ -257,7 +254,7 @@ function DiarySearchScreenQR({ onLogout, username = "Unknown User" }) {
         isTransitioningRef.current = false;
       } catch (err) {
         setError(
-          "Failed to start scanner: " + (err.message || JSON.stringify(err))
+          "Failed to start scanner: " + (err.message || JSON.stringify(err)),
         );
         console.error("Scanner start error:", err);
         isTransitioningRef.current = false;
@@ -282,7 +279,7 @@ function DiarySearchScreenQR({ onLogout, username = "Unknown User" }) {
       } else {
         setScannedDiaries((prev) => {
           const duplicate = prev.find(
-            (d) => d.Diary_Number === response.Diary_Number
+            (d) => d.Diary_Number === response.Diary_Number,
           );
           return duplicate ? prev : [...prev, response];
         });
@@ -373,7 +370,7 @@ function DiarySearchScreenQR({ onLogout, username = "Unknown User" }) {
           userData?.designation || ""
         }`,
         14,
-        28
+        28,
       );
       doc.text(`Place of Posting: ${userData?.placeOfPosting || ""}`, 14, 34);
       doc.text(`Date/Time: ${new Date().toLocaleString()}`, 14, 40);
