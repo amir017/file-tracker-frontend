@@ -181,15 +181,18 @@ function DiarySearchScreenQR({ onLogout, username = "Unknown User" }) {
 
             console.log("Decoded QR:", decodedText);
             const diaryMatch = decodedText.match(
-              /Diary Number\s*:\s*([A-Za-z0-9\/\-]+)/i,
+              /Diary Number\s*:\s*([^\n\r]+)/i,
             );
 
             if (!diaryMatch) {
               setError("Invalid QR code format. Please re-scan.");
               return;
             }
-
-            const diary = diaryMatch[1];
+            console.log("diary match", diaryMatch);
+            const diary = diaryMatch?.[1]?.trim();
+            const alreadyScanned = scannedDiariesRef.current.some(
+              (item) => item.Diary_Number === diary,
+            );
 
             if (alreadyScanned) {
               // show duplicate message for a short time
@@ -245,7 +248,7 @@ function DiarySearchScreenQR({ onLogout, username = "Unknown User" }) {
           },
           (errorMessage) => {
             // scan errors (non-fatal)
-            console.warn("Scan error:", errorMessage);
+            //  console.warn("Scan error:", errorMessage);
           },
         );
         console.log("Scanner started successfully");
@@ -273,6 +276,7 @@ function DiarySearchScreenQR({ onLogout, username = "Unknown User" }) {
     setLoading(true);
     setError("");
     try {
+      console.log("API", diary);
       const response = await Api.getDiaryDetails({ diaryNumber: diary });
       if (!response || response?.message) {
         setError(response?.message || "Diary not found.");
